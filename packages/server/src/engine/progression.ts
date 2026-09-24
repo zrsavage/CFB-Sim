@@ -30,7 +30,14 @@ function growPlayer(player: Player): Player {
   const headroom = player.potential - player.overall;
   const growth = clamp(Math.round(rawGrowth), -2, Math.max(0, headroom));
   const overall = clamp(player.overall + growth, 35, 99);
-  return { ...player, overall };
+  const delta = overall - player.overall;
+  // Shift each attribute by the same delta so a player's stat profile keeps
+  // pace with their overall instead of going stale from their freshman year.
+  const attributes = player.attributes.map((a) => ({
+    ...a,
+    value: clamp(a.value + delta, 30, 99),
+  }));
+  return { ...player, overall, attributes };
 }
 
 export function applyOffseasonProgression(

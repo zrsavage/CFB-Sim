@@ -1,6 +1,8 @@
 import { v4 as uuid } from "uuid";
 import type { Position, Recruit, RecruitStars } from "../../../shared/types.js";
-import { CITIES, FIRST_NAMES, LAST_NAMES, randomFrom } from "../data/names.js";
+import { FIRST_NAMES, LAST_NAMES, randomFrom } from "../data/names.js";
+import { generateBackground } from "../data/background.js";
+import { generateAttributes } from "../data/attributes.js";
 import { randInt, weightedPick } from "../util/random.js";
 import { ROSTER_COMPOSITION } from "./players.js";
 
@@ -31,16 +33,21 @@ export function generateRecruitClass(size = 2400): Recruit[] {
   for (let i = 0; i < size; i++) {
     const stars = rollStars();
     const [min, max] = STAR_RATING_RANGE[stars];
+    const position = weightedPick(POSITION_WEIGHTS);
+    const rating = randInt(min, max);
+    const background = generateBackground(position, rating);
+
     recruits.push({
       id: uuid(),
       firstName: randomFrom(FIRST_NAMES),
       lastName: randomFrom(LAST_NAMES),
-      position: weightedPick(POSITION_WEIGHTS),
+      position,
       stars,
-      rating: randInt(min, max),
+      rating,
       offeredByUser: false,
       signedTeamId: null,
-      hometown: randomFrom(CITIES),
+      ...background,
+      attributes: generateAttributes(position, rating),
     });
   }
   return recruits;

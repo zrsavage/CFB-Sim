@@ -1,6 +1,8 @@
 import { v4 as uuid } from "uuid";
 import type { DevTrait, Player, PlayerYear, Position } from "../../../shared/types.js";
 import { FIRST_NAMES, LAST_NAMES, randomFrom } from "../data/names.js";
+import { generateBackground } from "../data/background.js";
+import { generateAttributes } from "../data/attributes.js";
 import { clamp, randInt, gaussian, weightedPick } from "../util/random.js";
 
 // Roster composition: 70 total players across position groups.
@@ -55,7 +57,7 @@ const YEAR_AGE: Record<PlayerYear, number> = {
   SR: 21,
 };
 
-function rollDevTrait(): DevTrait {
+export function rollDevTrait(): DevTrait {
   return weightedPick<DevTrait>([
     { value: "Slow", weight: 35 },
     { value: "Normal", weight: 40 },
@@ -64,7 +66,7 @@ function rollDevTrait(): DevTrait {
   ]);
 }
 
-function headroomForTrait(trait: DevTrait): number {
+export function headroomForTrait(trait: DevTrait): number {
   switch (trait) {
     case "Slow":
       return randInt(2, 6);
@@ -89,6 +91,7 @@ export function generatePlayer(
   const devTrait = rollDevTrait();
   const headroom = headroomForTrait(devTrait) * YEAR_REMAINING_FACTOR[playerYear];
   const potential = Math.round(clamp(overall + headroom, overall, 99));
+  const background = generateBackground(position, overall);
 
   return {
     id: uuid(),
@@ -101,6 +104,8 @@ export function generatePlayer(
     potential,
     devTrait,
     age: YEAR_AGE[playerYear] + randInt(0, 1),
+    ...background,
+    attributes: generateAttributes(position, overall),
   };
 }
 

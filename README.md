@@ -61,8 +61,18 @@ overwrites it.
   transfer out, and a new recruiting class opens up.
 - **Recruiting**: browse a class of ~2,400 high school recruits, extend up
   to 25 offers, then advance to Signing Day, where recruits sign based on
-  program prestige (plus your offer) versus competing programs. Signees
-  join your roster as freshmen, and a new season begins.
+  program prestige (plus your offer) versus competing programs. A signed
+  recruit becomes the exact player on your roster — same name, background,
+  and attributes you scouted — as a freshman, and a new season begins.
+- **Player depth**: every generated player (recruits included) has a
+  five-attribute scouting profile specific to their position (e.g. a QB's
+  Arm Strength/Accuracy/Awareness/Speed/Poise, a CB's
+  Coverage/Speed/Agility/Awareness/Press), a hometown, a fictional high
+  school, a personality trait (Vocal Leader, Hot-Head, Film Junkie, ...),
+  and an auto-generated scouting blurb. Click any row on the Roster or
+  Recruiting screens to expand their report. Attributes shift with a
+  player's overall as they develop each offseason, so the profile never
+  goes stale.
 
 ## Project layout
 
@@ -71,7 +81,7 @@ packages/
   shared/    # types shared by server and client
   server/
     src/
-      data/        # name lists + the 133-team CFB-like dataset
+      data/        # name lists, the 133-team CFB-like dataset, attributes + backgrounds
       generators/  # league, roster, schedule, recruit class generation
       engine/      # ratings, game sim, progression, recruiting, promotion/relegation
       routes/       # REST endpoints
@@ -80,6 +90,7 @@ packages/
   client/
     src/
       pages/        # Dashboard, Roster, Standings, Schedule, Recruiting, TeamSelect
+      components/   # PlayerDetailPanel (scouting report expand row)
       api.ts         # fetch wrapper for the server API
       App.tsx         # tab navigation + top-level state
 ```

@@ -275,3 +275,71 @@ button.small {
   padding: 6px 8px;
   font-size: 13px;
 }
+
+tr.expandable-row {
+  cursor: pointer;
+}
+
+tr.expandable-row:hover td {
+  background: rgba(79, 163, 255, 0.06);
+}
+
+.player-detail {
+  background: var(--panel-2);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 4px 0 10px;
+}
+
+.player-detail .blurb {
+  color: var(--text);
+  font-size: 13px;
+  font-style: italic;
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+
+.player-detail .meta-line {
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+
+.attribute-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 8px 16px;
+}
+
+.attribute-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.attribute-row .attribute-label {
+  width: 90px;
+  flex-shrink: 0;
+  color: var(--muted);
+}
+
+.attribute-row .attribute-bar-track {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.attribute-row .attribute-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+}
+
+.attribute-row .attribute-value {
+  width: 24px;
+  text-align: right;
+  font-weight: 600;
+}

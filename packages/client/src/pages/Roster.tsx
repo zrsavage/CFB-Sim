@@ -1,14 +1,19 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import type { Player, SaveState } from "../../../shared/types";
 import { api } from "../api";
+import PlayerDetailPanel from "../components/PlayerDetailPanel";
+
+const COLUMN_COUNT = 8;
 
 export default function Roster({ career }: { career: SaveState }) {
   const [roster, setRoster] = useState<Player[] | null>(null);
   const [posFilter, setPosFilter] = useState<string>("ALL");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const userTeamId = career.career.userTeamId;
 
   useEffect(() => {
     setRoster(null);
+    setExpandedId(null);
     api.getRoster(userTeamId).then(setRoster);
   }, [userTeamId, career.career.season, career.career.phase]);
 
@@ -41,21 +46,29 @@ export default function Roster({ career }: { career: SaveState }) {
             <th>POT</th>
             <th>Dev Trait</th>
             <th>Age</th>
+            <th>Hometown</th>
           </tr>
         </thead>
         <tbody>
           {sorted.map((p) => (
-            <tr key={p.id}>
-              <td>
-                {p.firstName} {p.lastName}
-              </td>
-              <td>{p.position}</td>
-              <td>{p.year}</td>
-              <td>{p.overall}</td>
-              <td>{p.potential}</td>
-              <td>{p.devTrait}</td>
-              <td>{p.age}</td>
-            </tr>
+            <Fragment key={p.id}>
+              <tr
+                className="expandable-row"
+                onClick={() => setExpandedId(expandedId === p.id ? null : p.id)}
+              >
+                <td>
+                  {p.firstName} {p.lastName}
+                </td>
+                <td>{p.position}</td>
+                <td>{p.year}</td>
+                <td>{p.overall}</td>
+                <td>{p.potential}</td>
+                <td>{p.devTrait}</td>
+                <td>{p.age}</td>
+                <td>{p.hometown}</td>
+              </tr>
+              {expandedId === p.id && <PlayerDetailPanel info={p} colSpan={COLUMN_COUNT} />}
+            </Fragment>
           ))}
         </tbody>
       </table>

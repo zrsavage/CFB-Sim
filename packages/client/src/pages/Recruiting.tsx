@@ -1,6 +1,9 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import type { Recruit, SaveState } from "../../../shared/types";
 import { api } from "../api";
+import PlayerDetailPanel from "../components/PlayerDetailPanel";
+
+const COLUMN_COUNT = 6;
 
 export default function Recruiting({
   career,
@@ -19,6 +22,7 @@ export default function Recruiting({
   const [starFilter, setStarFilter] = useState("ALL");
   const [busy, setBusy] = useState(false);
   const [advancing, setAdvancing] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const active = career.career.phase === "recruiting";
 
@@ -82,7 +86,7 @@ export default function Recruiting({
     <div className="panel">
       <h2>Recruiting Board</h2>
       <div className="offer-count">
-        Offers used: {offerCount} / {maxOffers}
+        Offers used: {offerCount} / {maxOffers} · Click a recruit to see their scouting report
       </div>
       <div className="filters">
         <select value={posFilter} onChange={(e) => setPosFilter(e.target.value)}>
@@ -115,24 +119,33 @@ export default function Recruiting({
         </thead>
         <tbody>
           {filtered.map((r) => (
-            <tr key={r.id} className={r.offeredByUser ? "highlight" : ""}>
-              <td>
-                {r.firstName} {r.lastName}
-              </td>
-              <td>{r.position}</td>
-              <td className="badge-star">{"★".repeat(r.stars)}</td>
-              <td>{r.rating}</td>
-              <td>{r.hometown}</td>
-              <td>
-                <button
-                  className={r.offeredByUser ? "secondary small" : "primary small"}
-                  disabled={busy || (!r.offeredByUser && offerCount >= maxOffers)}
-                  onClick={() => toggleOffer(r.id)}
-                >
-                  {r.offeredByUser ? "Withdraw" : "Offer"}
-                </button>
-              </td>
-            </tr>
+            <Fragment key={r.id}>
+              <tr
+                className={`expandable-row${r.offeredByUser ? " highlight" : ""}`}
+                onClick={() => setExpandedId(expandedId === r.id ? null : r.id)}
+              >
+                <td>
+                  {r.firstName} {r.lastName}
+                </td>
+                <td>{r.position}</td>
+                <td className="badge-star">{"★".repeat(r.stars)}</td>
+                <td>{r.rating}</td>
+                <td>{r.hometown}</td>
+                <td>
+                  <button
+                    className={r.offeredByUser ? "secondary small" : "primary small"}
+                    disabled={busy || (!r.offeredByUser && offerCount >= maxOffers)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleOffer(r.id);
+                    }}
+                  >
+                    {r.offeredByUser ? "Withdraw" : "Offer"}
+                  </button>
+                </td>
+              </tr>
+              {expandedId === r.id && <PlayerDetailPanel info={r} colSpan={COLUMN_COUNT} />}
+            </Fragment>
           ))}
         </tbody>
       </table>

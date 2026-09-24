@@ -17,6 +17,11 @@ export type PlayerYear = "FR" | "SO" | "JR" | "SR";
 
 export type DevTrait = "Slow" | "Normal" | "Fast" | "Star";
 
+export interface PlayerAttribute {
+  label: string;
+  value: number;
+}
+
 export interface Player {
   id: string;
   teamId: string | null;
@@ -28,6 +33,11 @@ export interface Player {
   potential: number; // >= overall, cap 99
   devTrait: DevTrait;
   age: number;
+  hometown: string;
+  highSchool: string;
+  trait: string;
+  blurb: string;
+  attributes: PlayerAttribute[];
 }
 
 export type Division = "power" | "group5" | "independent";
@@ -70,6 +80,10 @@ export interface Recruit {
   offeredByUser: boolean;
   signedTeamId: string | null;
   hometown: string;
+  highSchool: string;
+  trait: string;
+  blurb: string;
+  attributes: PlayerAttribute[];
 }
 
 export type CareerPhase = "season" | "recruiting";

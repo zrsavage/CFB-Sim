@@ -1,9 +1,38 @@
+import { v4 as uuid } from "uuid";
 import type { Player, RecapEntry, Recruit, Team } from "../../../shared/types.js";
-import { gaussian } from "../util/random.js";
-import { generatePlayer, ROSTER_COMPOSITION } from "../generators/players.js";
+import { clamp, gaussian, randInt } from "../util/random.js";
+import { ROSTER_COMPOSITION, headroomForTrait, rollDevTrait } from "../generators/players.js";
 
 const ROSTER_CAP = Object.values(ROSTER_COMPOSITION).reduce((a, b) => a + b, 0);
 const USER_PITCH_BONUS = 14;
+
+// A signed recruit becomes the actual player on the roster — same name,
+// hometown, high school, personality, and scouting attributes the user saw
+// on the recruiting board — rather than a freshly-rolled stranger.
+function playerFromRecruit(recruit: Recruit, teamId: string): Player {
+  const devTrait = rollDevTrait();
+  const overall = recruit.rating;
+  const headroom = headroomForTrait(devTrait); // freshmen have full development runway
+  const potential = clamp(overall + headroom, overall, 99);
+
+  return {
+    id: uuid(),
+    teamId,
+    firstName: recruit.firstName,
+    lastName: recruit.lastName,
+    position: recruit.position,
+    year: "FR",
+    overall,
+    potential,
+    devTrait,
+    age: 18 + randInt(0, 1),
+    hometown: recruit.hometown,
+    highSchool: recruit.highSchool,
+    trait: recruit.trait,
+    blurb: recruit.blurb,
+    attributes: recruit.attributes,
+  };
+}
 
 export function resolveSigningDay(
   teams: Team[],
@@ -54,7 +83,7 @@ export function resolveSigningDay(
     }
 
     openSpots.set(bestTeam.id, (openSpots.get(bestTeam.id) ?? 1) - 1);
-    const signedPlayer = generatePlayer(recruit.position, bestTeam.prestige, "FR", bestTeam.id);
+    const signedPlayer = playerFromRecruit(recruit, bestTeam.id);
     newPlayers.push(signedPlayer);
     resolvedRecruits.push({ ...recruit, signedTeamId: bestTeam.id });
 
