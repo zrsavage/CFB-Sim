@@ -2,6 +2,7 @@ import { Router } from "express";
 import type { CareerPhase, WeekSimResult } from "../../../shared/types.js";
 import { simulateWeek, applyResultsToRecords } from "../engine/simulate.js";
 import { applyOffseasonProgression } from "../engine/progression.js";
+import { applyPromotionRelegation } from "../engine/promotion.js";
 import { recomputeAllRatings } from "../engine/ratings.js";
 import { generateRecruitClass } from "../generators/recruits.js";
 import { loadSave, writeSave } from "../store.js";
@@ -33,7 +34,12 @@ router.post("/sim/week", (_req, res) => {
   let phaseAfter: CareerPhase = state.career.phase;
 
   if (isLastWeek) {
-    const { players, recap } = applyOffseasonProgression(
+    const { teams: realignedTeams, recap: promotionRecap } = applyPromotionRelegation(
+      state.teams
+    );
+    state.teams = realignedTeams;
+
+    const { players, recap: progressionRecap } = applyOffseasonProgression(
       state.players,
       state.teams,
       state.career.userTeamId
@@ -41,7 +47,7 @@ router.post("/sim/week", (_req, res) => {
     state.players = players;
     state.teams = recomputeAllRatings(state.teams, state.players);
     state.recruits = generateRecruitClass();
-    state.lastOffseasonRecap = recap;
+    state.lastOffseasonRecap = [...promotionRecap, ...progressionRecap];
     state.career.phase = "recruiting";
     phaseAfter = "recruiting";
   } else {

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { SaveState, WeekSimResult } from "../../../shared/types";
 import { api } from "../api";
+import { DIVISION_LABELS } from "../divisions";
 
 export default function Dashboard({
   career,
@@ -15,12 +16,16 @@ export default function Dashboard({
   const [lastResult, setLastResult] = useState<WeekSimResult | null>(null);
 
   const userTeam = career.teams.find((t) => t.id === career.career.userTeamId)!;
-  const sorted = [...career.teams].sort((a, b) => {
-    const aPct = a.wins / Math.max(1, a.wins + a.losses);
-    const bPct = b.wins / Math.max(1, b.wins + b.losses);
-    return bPct - aPct || b.wins - a.wins;
-  });
+  const winPct = (t: { wins: number; losses: number }) => t.wins / Math.max(1, t.wins + t.losses);
+  const sorted = [...career.teams].sort(
+    (a, b) => winPct(b) - winPct(a) || b.wins - a.wins
+  );
   const rank = sorted.findIndex((t) => t.id === userTeam.id) + 1;
+
+  const confTeams = sorted.filter((t) => t.conference === userTeam.conference);
+  const confRank = confTeams.findIndex((t) => t.id === userTeam.id) + 1;
+  const divisionTeams = sorted.filter((t) => t.division === userTeam.division);
+  const divisionRank = divisionTeams.findIndex((t) => t.id === userTeam.id) + 1;
 
   async function simulateWeek() {
     setSimming(true);
@@ -46,15 +51,32 @@ export default function Dashboard({
       <div className="panel">
         <h2>Program Overview</h2>
         <p style={{ marginTop: 0 }}>
-          {userTeam.name} {userTeam.mascot} · {userTeam.conference} · Rank #{rank} of {career.teams.length}
+          {userTeam.name} {userTeam.mascot} · {DIVISION_LABELS[userTeam.division]} ·{" "}
+          {userTeam.conference}
         </p>
         <p>
-          Record: <strong>{userTeam.wins}-{userTeam.losses}</strong> · Prestige{" "}
+          Record: <strong>{userTeam.wins}-{userTeam.losses}</strong> · Conference Rank #{confRank} of{" "}
+          {confTeams.length} · National Rank #{rank} of {career.teams.length}
+        </p>
+        <p>
+          Prestige{" "}
           <span className="rating-pill">{userTeam.prestige}</span> · OVR{" "}
           <span className="rating-pill">{userTeam.overallRating}</span> · OFF{" "}
           <span className="rating-pill">{userTeam.offenseRating}</span> · DEF{" "}
           <span className="rating-pill">{userTeam.defenseRating}</span>
         </p>
+        {userTeam.division === "power" && divisionRank > divisionTeams.length - 2 && (
+          <p className="error-banner" style={{ display: "inline-block" }}>
+            Danger zone: you're among the worst records in the Power Conferences nationally and
+            risk relegation to the Group of Five this offseason.
+          </p>
+        )}
+        {userTeam.division === "group5" && divisionRank <= 2 && (
+          <p style={{ color: "var(--good)" }}>
+            You're among the best records in the Group of Five nationally — in position for
+            promotion to a Power conference this offseason!
+          </p>
+        )}
 
         {career.career.phase === "season" ? (
           <button className="primary" onClick={simulateWeek} disabled={simming}>

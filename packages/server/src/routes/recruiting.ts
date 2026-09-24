@@ -2,7 +2,7 @@ import { Router } from "express";
 import type { SigningDayResult } from "../../../shared/types.js";
 import { resolveSigningDay } from "../engine/recruiting.js";
 import { recomputeAllRatings } from "../engine/ratings.js";
-import { generateSchedule, totalWeeksFor } from "../generators/schedule.js";
+import { generateSchedule, scheduleTotalWeeks } from "../generators/schedule.js";
 import { loadSave, writeSave } from "../store.js";
 
 const router = Router();
@@ -68,10 +68,10 @@ router.post("/recruiting/advance", (_req, res) => {
   state.career.season += 1;
   state.career.week = 1;
   state.career.phase = "season";
-  state.career.totalWeeks = totalWeeksFor(state.teams.length);
-  state.schedule = generateSchedule(state.teams, state.career.season);
-  // Reset team records for the new season.
+  // Reset team records for the new season before building next year's schedule.
   state.teams = state.teams.map((t) => ({ ...t, wins: 0, losses: 0 }));
+  state.schedule = generateSchedule(state.teams, state.career.season);
+  state.career.totalWeeks = scheduleTotalWeeks(state.schedule);
 
   writeSave(state);
 

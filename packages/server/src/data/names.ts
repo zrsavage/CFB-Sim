@@ -25,19 +25,6 @@ export const CITIES = [
   "Centerville", "Fairhope",
 ] as const;
 
-export const TEAM_MASCOTS = [
-  "Wolves", "Hawks", "Bears", "Tigers", "Eagles", "Lions", "Panthers", "Cougars",
-  "Bulldogs", "Raiders", "Knights", "Gators", "Longhorns", "Rams", "Falcons",
-  "Bison", "Mustangs", "Titans", "Vikings", "Hurricanes",
-] as const;
-
-export const TEAM_CITIES = [
-  "Riverside", "Ashford", "Kingsport", "Millbrook", "Eastwood", "Westfield",
-  "Oakdale", "Pinecrest", "Lakeview", "Summit", "Greenville", "Hartland",
-  "Bakersfield", "Centerville", "Fairhope", "Draperton", "Nova City", "Grantham",
-  "Shoreline", "Carsonville",
-] as const;
-
 export function randomFrom<T>(arr: readonly T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }

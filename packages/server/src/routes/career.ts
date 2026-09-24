@@ -1,7 +1,7 @@
 import { Router } from "express";
 import type { SaveState } from "../../../shared/types.js";
 import { generateLeague } from "../generators/league.js";
-import { generateSchedule, totalWeeksFor } from "../generators/schedule.js";
+import { generateSchedule, scheduleTotalWeeks } from "../generators/schedule.js";
 import { recomputeAllRatings } from "../engine/ratings.js";
 import { loadSave, writeSave } from "../store.js";
 
@@ -19,7 +19,7 @@ router.post("/career/generate", (_req, res) => {
       userTeamId: "",
       season: 1,
       week: 1,
-      totalWeeks: totalWeeksFor(teams.length),
+      totalWeeks: 1, // set once the schedule is generated in /career/select-team
       phase: "season",
       maxOffers: MAX_OFFERS,
     },
@@ -52,6 +52,7 @@ router.post("/career/select-team", (req, res) => {
   state.career.week = 1;
   state.career.phase = "season";
   state.schedule = generateSchedule(state.teams, state.career.season);
+  state.career.totalWeeks = scheduleTotalWeeks(state.schedule);
 
   writeSave(state);
   res.json(state);

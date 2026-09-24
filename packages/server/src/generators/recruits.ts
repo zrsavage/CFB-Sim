@@ -26,7 +26,7 @@ const POSITION_WEIGHTS: { value: Position; weight: number }[] = (
   Object.keys(ROSTER_COMPOSITION) as Position[]
 ).map((position) => ({ value: position, weight: ROSTER_COMPOSITION[position] }));
 
-export function generateRecruitClass(size = 220): Recruit[] {
+export function generateRecruitClass(size = 2400): Recruit[] {
   const recruits: Recruit[] = [];
   for (let i = 0; i < size; i++) {
     const stars = rollStars();

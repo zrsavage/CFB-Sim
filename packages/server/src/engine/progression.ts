@@ -29,7 +29,7 @@ function growPlayer(player: Player): Player {
   const rawGrowth = randInt(min, max) * YEAR_GROWTH_FACTOR[player.year];
   const headroom = player.potential - player.overall;
   const growth = clamp(Math.round(rawGrowth), -2, Math.max(0, headroom));
-  const overall = clamp(player.overall + growth, 40, 99);
+  const overall = clamp(player.overall + growth, 35, 99);
   return { ...player, overall };
 }
 

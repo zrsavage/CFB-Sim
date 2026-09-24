@@ -84,8 +84,8 @@ export function generatePlayer(
   teamId: string | null = null
 ): Player {
   const playerYear = year ?? randomFrom(YEARS);
-  const base = 55 + (teamPrestige - 70) * 0.25 + gaussian(0, 7) + YEAR_OVERALL_ADJUST[playerYear];
-  const overall = Math.round(clamp(base, 40, 99));
+  const base = 52 + (teamPrestige - 65) * 0.35 + gaussian(0, 7) + YEAR_OVERALL_ADJUST[playerYear];
+  const overall = Math.round(clamp(base, 35, 99));
   const devTrait = rollDevTrait();
   const headroom = headroomForTrait(devTrait) * YEAR_REMAINING_FACTOR[playerYear];
   const potential = Math.round(clamp(overall + headroom, overall, 99));

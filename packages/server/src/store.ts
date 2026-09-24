@@ -27,7 +27,7 @@ export function writeSave(state: SaveState): void {
   if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
   }
-  fs.writeFileSync(SAVE_PATH, JSON.stringify(state, null, 2), "utf-8");
+  fs.writeFileSync(SAVE_PATH, JSON.stringify(state), "utf-8");
 }
 
 export function clearSave(): void {

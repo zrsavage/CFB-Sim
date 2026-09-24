@@ -29,27 +29,38 @@ npm run dev:server   # http://localhost:4000
 npm run dev:client   # http://localhost:5173 (proxies /api to the server)
 ```
 
-Open http://localhost:5173. Pick a team from the generated 12-team league to
+Open http://localhost:5173. Pick a team from the generated 133-team league to
 start a career. There's a single save slot; starting a new career
 overwrites it.
 
 ## How the sim works
 
-- **League**: 12 teams across two 6-team conferences, each with a 70-man
-  roster generated with position-appropriate attributes (overall, potential,
-  development trait, class year).
+- **League**: 133 fictional-but-real-ish programs modeled on the actual
+  FBS landscape — 4 "Power" conferences (67 teams), 5 "Group of Five"
+  conferences (63 teams), and 3 independents — defined in
+  `packages/server/src/data/cfbTeams.ts`. Team names/mascots evoke real
+  programs (e.g. Tuscaloosa Crimson, Columbus Buckeyes, Boise Broncos)
+  without using real school names, and each starts with a prestige rating
+  that shapes its 70-man roster's talent level.
 - **Ratings**: each team's offense/defense rating is a weighted average of
   its best players at each position group (starters only).
 - **Game sim**: each week's scores are generated from the two teams'
   offense/defense ratings plus home-field advantage and randomness — no
   play-by-play, just believable final scores.
-- **Season**: an 11-week round robin (every team plays every other team
-  once). Standings track wins/losses.
+- **Schedule**: conference games (8-9, via a partial round robin) plus
+  non-conference games (3-12 depending on division) generated and packed
+  into weeks with no team double-booked — a ~14-16 week season, same as
+  real FBS. Standings track wins/losses within conference and division.
+- **Promotion/relegation**: at the end of each season, the two worst-record
+  Power teams (nationally) swap places with the two best-record Group of
+  Five teams — same roster, new conference, a small prestige shift. A
+  Group of Five team really can climb into a Power conference (and a Power
+  team can fall out of one) over a multi-year career.
 - **Offseason**: once the season ends, returning players develop based on
   their development trait and class year, seniors graduate, a few players
   transfer out, and a new recruiting class opens up.
-- **Recruiting**: browse a class of ~220 high school recruits, extend up to
-  25 offers, then advance to Signing Day, where recruits sign based on
+- **Recruiting**: browse a class of ~2,400 high school recruits, extend up
+  to 25 offers, then advance to Signing Day, where recruits sign based on
   program prestige (plus your offer) versus competing programs. Signees
   join your roster as freshmen, and a new season begins.
 
@@ -60,9 +71,9 @@ packages/
   shared/    # types shared by server and client
   server/
     src/
-      data/        # name lists used for generation
+      data/        # name lists + the 133-team CFB-like dataset
       generators/  # league, roster, schedule, recruit class generation
-      engine/      # ratings, game sim, progression, recruiting resolution
+      engine/      # ratings, game sim, progression, recruiting, promotion/relegation
       routes/       # REST endpoints
       store.ts      # JSON save file persistence
       index.ts       # Express app entrypoint

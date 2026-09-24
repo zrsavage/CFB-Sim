@@ -30,12 +30,15 @@ export interface Player {
   age: number;
 }
 
+export type Division = "power" | "group5" | "independent";
+
 export interface Team {
   id: string;
   name: string;
   mascot: string;
   abbreviation: string;
   conference: string;
+  division: Division;
   prestige: number; // 40-99
   wins: number;
   losses: number;
