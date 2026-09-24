@@ -50,6 +50,7 @@ export interface Team {
   conference: string;
   division: Division;
   prestige: number; // 40-99
+  draftPicks: number; // cumulative all-time NFL Draft picks produced
   wins: number;
   losses: number;
   offenseRating: number;

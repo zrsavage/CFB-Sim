@@ -36,6 +36,7 @@ export function generateLeague(): { teams: Team[]; players: Player[] } {
       conference: entry.conference,
       division: entry.division,
       prestige,
+      draftPicks: 0,
       wins: 0,
       losses: 0,
       offenseRating: 0,

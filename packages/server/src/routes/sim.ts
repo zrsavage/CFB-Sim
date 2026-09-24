@@ -39,13 +39,13 @@ router.post("/sim/week", (_req, res) => {
     );
     state.teams = realignedTeams;
 
-    const { players, recap: progressionRecap } = applyOffseasonProgression(
-      state.players,
-      state.teams,
-      state.career.userTeamId
-    );
+    const {
+      players,
+      teams: progressedTeams,
+      recap: progressionRecap,
+    } = applyOffseasonProgression(state.players, state.teams, state.career.userTeamId);
     state.players = players;
-    state.teams = recomputeAllRatings(state.teams, state.players);
+    state.teams = recomputeAllRatings(progressedTeams, state.players);
     state.recruits = generateRecruitClass();
     state.lastOffseasonRecap = [...promotionRecap, ...progressionRecap];
     state.career.phase = "recruiting";

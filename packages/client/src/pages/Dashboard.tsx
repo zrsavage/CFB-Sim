@@ -63,7 +63,8 @@ export default function Dashboard({
           <span className="rating-pill">{userTeam.prestige}</span> · OVR{" "}
           <span className="rating-pill">{userTeam.overallRating}</span> · OFF{" "}
           <span className="rating-pill">{userTeam.offenseRating}</span> · DEF{" "}
-          <span className="rating-pill">{userTeam.defenseRating}</span>
+          <span className="rating-pill">{userTeam.defenseRating}</span> · NFL Draft Picks{" "}
+          <span className="rating-pill">{userTeam.draftPicks}</span>
         </p>
         {userTeam.division === "power" && divisionRank > divisionTeams.length - 2 && (
           <p className="error-banner" style={{ display: "inline-block" }}>

@@ -1,5 +1,6 @@
 import type { Player, PlayerYear, RecapEntry, Team } from "../../../shared/types.js";
 import { clamp, randInt } from "../util/random.js";
+import { rollDraftOutcome } from "./draft.js";
 
 const NEXT_YEAR: Record<PlayerYear, PlayerYear | null> = {
   FR: "SO",
@@ -44,7 +45,8 @@ export function applyOffseasonProgression(
   players: Player[],
   teams: Team[],
   userTeamId: string
-): { players: Player[]; recap: RecapEntry[] } {
+): { players: Player[]; teams: Team[]; recap: RecapEntry[] } {
+  const teamById = new Map(teams.map((t) => [t.id, { ...t }]));
   const teamNameById = new Map(teams.map((t) => [t.id, `${t.name} ${t.mascot}`]));
   const recap: RecapEntry[] = [];
   const result: Player[] = [];
@@ -53,10 +55,23 @@ export function applyOffseasonProgression(
     const isUserPlayer = player.teamId === userTeamId;
 
     if (player.year === "SR") {
+      const outcome = rollDraftOutcome(player.overall);
+      const team = player.teamId ? teamById.get(player.teamId) : undefined;
+      if (team && outcome.drafted) {
+        team.prestige = clamp(team.prestige + outcome.prestigeBoost, 30, 99);
+        team.draftPicks += 1;
+      }
+
       if (isUserPlayer) {
-        recap.push({
-          message: `${player.firstName} ${player.lastName} (${player.position}) graduated after a ${player.year} season.`,
-        });
+        if (outcome.drafted) {
+          recap.push({
+            message: `${player.firstName} ${player.lastName} (${player.position}) was drafted in Round ${outcome.round} of the NFL Draft! (+${outcome.prestigeBoost} prestige)`,
+          });
+        } else {
+          recap.push({
+            message: `${player.firstName} ${player.lastName} (${player.position}) graduated after a SR season, going undrafted.`,
+          });
+        }
       }
       continue; // seniors leave the roster
     }
@@ -88,5 +103,5 @@ export function applyOffseasonProgression(
     recap.push({ message: `${teamName} enters the offseason with a quiet roster.` });
   }
 
-  return { players: result, recap };
+  return { players: result, teams: Array.from(teamById.values()), recap };
 }

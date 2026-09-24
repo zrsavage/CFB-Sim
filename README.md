@@ -59,6 +59,13 @@ overwrites it.
 - **Offseason**: once the season ends, returning players develop based on
   their development trait and class year, seniors graduate, a few players
   transfer out, and a new recruiting class opens up.
+- **NFL Draft**: every graduating senior gets a draft roll weighted by their
+  overall rating (most go undrafted, same as real life — only the highest
+  overalls have a real shot). A drafted player's program gets a small,
+  round-dependent prestige bump (bigger for Round 1 than Round 7) and its
+  all-time draft-pick counter ticks up, so a program that keeps churning out
+  NFL talent climbs in prestige over a career — visible in the offseason
+  recap and on the Dashboard.
 - **Recruiting**: browse a class of ~2,400 high school recruits, extend up
   to 25 offers, then advance to Signing Day, where recruits sign based on
   program prestige (plus your offer) versus competing programs. A signed
