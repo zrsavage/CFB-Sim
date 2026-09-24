@@ -68,8 +68,9 @@ router.post("/recruiting/advance", (_req, res) => {
   state.career.season += 1;
   state.career.week = 1;
   state.career.phase = "season";
-  // Reset team records for the new season before building next year's schedule.
-  state.teams = state.teams.map((t) => ({ ...t, wins: 0, losses: 0 }));
+  // Records were already reset to 0-0 right after promotion/relegation
+  // (see routes/sim.ts), so a team's new conference is never shown paired
+  // with a record it earned in its old one.
   state.schedule = generateSchedule(state.teams, state.career.season);
   state.career.totalWeeks = scheduleTotalWeeks(state.schedule);
 

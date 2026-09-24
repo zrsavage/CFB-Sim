@@ -35,6 +35,7 @@ export const api = {
       body: JSON.stringify({ teamId }),
     }),
   getCareer: () => request<SaveState>("/career"),
+  resetCareer: () => request<{ ok: true }>("/career/reset", { method: "POST" }),
   getTeams: () => request<Team[]>("/teams"),
   getRoster: (teamId: string) => request<Player[]>(`/teams/${teamId}/roster`),
   getStandings: () => request<Team[]>("/standings"),

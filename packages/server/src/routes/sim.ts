@@ -99,8 +99,13 @@ router.post("/sim/week", (_req, res) => {
     );
     const funded = applySeasonIncome(progressedTeams, draftPicksThisSeason);
 
+    // Reset records for the new season now (not later, in recruiting/advance)
+    // so a team's conference/division — already realigned above — is never
+    // shown paired with the record it earned in its old conference.
+    const freshRecords = funded.map((t) => ({ ...t, wins: 0, losses: 0 }));
+
     const { teams: staffedTeams, recap: coachingRecap } = applyCoachingCarousel(
-      funded,
+      freshRecords,
       state.career.userTeamId
     );
 

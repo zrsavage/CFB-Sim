@@ -4,7 +4,7 @@ import { generateLeague } from "../generators/league.js";
 import { generateSchedule, scheduleTotalWeeks } from "../generators/schedule.js";
 import { recomputeAllRatings } from "../engine/ratings.js";
 import { generateCoachingPool } from "../generators/coaches.js";
-import { loadSave, writeSave } from "../store.js";
+import { clearSave, loadSave, writeSave } from "../store.js";
 
 const router = Router();
 
@@ -58,6 +58,11 @@ router.post("/career/select-team", (req, res) => {
 
   writeSave(state);
   res.json(state);
+});
+
+router.post("/career/reset", (_req, res) => {
+  clearSave();
+  res.json({ ok: true });
 });
 
 router.get("/career", (_req, res) => {

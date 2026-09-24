@@ -1,5 +1,10 @@
 # Gridiron GM — College Football Manager Sim
 
+**Status: Beta.** Fully playable start-to-finish — pick a team, play out a
+season through the postseason, recruit, and carry a program across as many
+four-year cycles as you like. Rough edges are called out in [Known
+limitations](#known-limitations) below; nothing there blocks play.
+
 A text/data-driven college football manager. Pick a program, then run it for
 as many four-year cycles as you like: simulate games week to week based on
 your roster's ratings, recruit high schoolers each offseason, and watch your
@@ -17,7 +22,22 @@ and make recruiting decisions through tables and simple screens.
   REST API.
 - **Shared types**: `packages/shared/types.ts`, imported by both sides.
 
-## Running it
+## Play it
+
+```bash
+npm install
+npm run build
+npm start
+```
+
+Open **http://localhost:4000** — one command, one port, no separate dev
+servers. There's a single save slot; use the **New Career** button in the
+top bar any time to wipe it and start over (no shell access needed).
+
+## Developing it
+
+For live-reload while working on the code, run the client and server as
+separate dev processes instead:
 
 ```bash
 npm install
@@ -29,9 +49,7 @@ npm run dev:server   # http://localhost:4000
 npm run dev:client   # http://localhost:5173 (proxies /api to the server)
 ```
 
-Open http://localhost:5173. Pick a team from the generated 133-team league to
-start a career. There's a single save slot; starting a new career
-overwrites it.
+Open http://localhost:5173 for this mode — it hot-reloads on every save.
 
 ## How the sim works
 
@@ -124,6 +142,22 @@ packages/
       api.ts         # fetch wrapper for the server API
       App.tsx         # tab navigation + top-level state
 ```
+
+## Known limitations
+
+Nothing here blocks playing a full career — these are rough edges to be
+aware of:
+
+- **Schedule game counts vary slightly.** The scheduler packs conference and
+  non-conference games into weeks without double-booking any team; a small
+  number of teams (independents especially) end up with 1-2 fewer games
+  than the target in a given season. Not exploitable, just a minor realism
+  gap.
+- **Single save slot.** Starting a new career overwrites the old one — there's
+  no multi-save support yet.
+- **No mid-career pause on facility/coaching moves.** Facility upgrades and
+  coaching hires are available any time, not gated to the offseason like
+  recruiting is.
 
 ## Ideas for what's next
 

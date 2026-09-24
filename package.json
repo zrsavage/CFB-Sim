@@ -9,6 +9,8 @@
     "dev:server": "npm run dev --workspace=packages/server",
     "dev:client": "npm run dev --workspace=packages/client",
     "build:server": "npm run build --workspace=packages/server",
-    "build:client": "npm run build --workspace=packages/client"
+    "build:client": "npm run build --workspace=packages/client",
+    "build": "npm run build:client && npm run build:server",
+    "start": "npm start --workspace=packages/server"
   }
 }

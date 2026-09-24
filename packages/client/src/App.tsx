@@ -64,6 +64,19 @@ export default function App() {
   const phaseLabel = PHASE_LABELS[career.career.phase];
   const weekLabel = career.career.phase === "season" ? ` · Week ${career.career.week}` : "";
 
+  async function startNewCareer() {
+    if (!window.confirm("Start a new career? This permanently deletes your current save.")) {
+      return;
+    }
+    try {
+      await api.resetCareer();
+      setCareer(null);
+      setTab("dashboard");
+    } catch (e: any) {
+      setError(e.message);
+    }
+  }
+
   return (
     <div className="app-shell">
       <div className="top-bar">
@@ -72,6 +85,9 @@ export default function App() {
           {userTeam ? `${userTeam.name} ${userTeam.mascot}` : "—"} · Season {career.career.season}{" "}
           · {phaseLabel}
           {weekLabel}
+          <button className="secondary small" style={{ marginLeft: 12 }} onClick={startNewCareer}>
+            New Career
+          </button>
         </div>
       </div>
 
