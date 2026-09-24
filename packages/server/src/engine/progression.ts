@@ -23,11 +23,16 @@ const YEAR_GROWTH_FACTOR: Record<PlayerYear, number> = {
   SR: 0.4,
 };
 
-const TRANSFER_CHANCE = 0.04;
+const BASE_TRANSFER_CHANCE = 0.04;
 
-function growPlayer(player: Player): Player {
+function transferChance(academicsLevel: number): number {
+  return Math.max(0.01, BASE_TRANSFER_CHANCE - (academicsLevel - 1) * 0.005);
+}
+
+function growPlayer(player: Player, trainingLevel: number): Player {
   const [min, max] = GROWTH_RANGE[player.devTrait];
-  const rawGrowth = randInt(min, max) * YEAR_GROWTH_FACTOR[player.year];
+  const trainingBonus = (trainingLevel - 1) * 0.5;
+  const rawGrowth = randInt(min, max) * YEAR_GROWTH_FACTOR[player.year] + trainingBonus;
   const headroom = player.potential - player.overall;
   const growth = clamp(Math.round(rawGrowth), -2, Math.max(0, headroom));
   const overall = clamp(player.overall + growth, 35, 99);
@@ -53,10 +58,10 @@ export function applyOffseasonProgression(
 
   for (const player of players) {
     const isUserPlayer = player.teamId === userTeamId;
+    const team = player.teamId ? teamById.get(player.teamId) : undefined;
 
     if (player.year === "SR") {
       const outcome = rollDraftOutcome(player.overall);
-      const team = player.teamId ? teamById.get(player.teamId) : undefined;
       if (team && outcome.drafted) {
         team.prestige = clamp(team.prestige + outcome.prestigeBoost, 30, 99);
         team.draftPicks += 1;
@@ -76,7 +81,8 @@ export function applyOffseasonProgression(
       continue; // seniors leave the roster
     }
 
-    if (Math.random() < TRANSFER_CHANCE) {
+    const academicsLevel = team?.facilities.academics ?? 1;
+    if (Math.random() < transferChance(academicsLevel)) {
       if (isUserPlayer) {
         recap.push({
           message: `${player.firstName} ${player.lastName} (${player.position}) entered the transfer portal and left the program.`,
@@ -85,7 +91,8 @@ export function applyOffseasonProgression(
       continue;
     }
 
-    const grown = growPlayer(player);
+    const trainingLevel = team?.facilities.training ?? 1;
+    const grown = growPlayer(player, trainingLevel);
     const nextYear = NEXT_YEAR[player.year] as PlayerYear;
     const updated: Player = { ...grown, year: nextYear, age: player.age + 1 };
 

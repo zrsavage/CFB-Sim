@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { SaveState } from "../../shared/types";
+import type { CareerPhase, SaveState } from "../../shared/types";
 import { api } from "./api";
 import TeamSelect from "./pages/TeamSelect";
 import Dashboard from "./pages/Dashboard";
@@ -7,8 +7,27 @@ import Roster from "./pages/Roster";
 import Standings from "./pages/Standings";
 import Schedule from "./pages/Schedule";
 import Recruiting from "./pages/Recruiting";
+import Facilities from "./pages/Facilities";
+import Coaching from "./pages/Coaching";
 
-type Tab = "dashboard" | "roster" | "standings" | "schedule" | "recruiting";
+type Tab = "dashboard" | "roster" | "standings" | "schedule" | "recruiting" | "facilities" | "coaching";
+
+const TAB_LABELS: Record<Tab, string> = {
+  dashboard: "Dashboard",
+  roster: "Roster",
+  standings: "Standings",
+  schedule: "Schedule",
+  recruiting: "Recruiting",
+  facilities: "Facilities",
+  coaching: "Coaching",
+};
+
+const PHASE_LABELS: Record<CareerPhase, string> = {
+  season: "Regular Season",
+  championship: "Conference Championships",
+  bowls: "Bowl Season",
+  recruiting: "Offseason",
+};
 
 export default function App() {
   const [career, setCareer] = useState<SaveState | null>(null);
@@ -42,27 +61,26 @@ export default function App() {
   }
 
   const userTeam = career.teams.find((t) => t.id === career.career.userTeamId);
+  const phaseLabel = PHASE_LABELS[career.career.phase];
+  const weekLabel = career.career.phase === "season" ? ` · Week ${career.career.week}` : "";
 
   return (
     <div className="app-shell">
       <div className="top-bar">
         <h1>Gridiron GM</h1>
         <div className="status">
-          {userTeam ? `${userTeam.name} ${userTeam.mascot}` : "—"} · Season{" "}
-          {career.career.season} · {career.career.phase === "season" ? `Week ${career.career.week}` : "Offseason"}
+          {userTeam ? `${userTeam.name} ${userTeam.mascot}` : "—"} · Season {career.career.season}{" "}
+          · {phaseLabel}
+          {weekLabel}
         </div>
       </div>
 
       {error && <div className="error-banner">{error}</div>}
 
       <nav className="tabs">
-        {(["dashboard", "roster", "standings", "schedule", "recruiting"] as Tab[]).map((t) => (
+        {(Object.keys(TAB_LABELS) as Tab[]).map((t) => (
           <button key={t} className={tab === t ? "active" : ""} onClick={() => setTab(t)}>
-            {t === "dashboard" && "Dashboard"}
-            {t === "roster" && "Roster"}
-            {t === "standings" && "Standings"}
-            {t === "schedule" && "Schedule"}
-            {t === "recruiting" && "Recruiting"}
+            {TAB_LABELS[t]}
           </button>
         ))}
       </nav>
@@ -76,6 +94,10 @@ export default function App() {
       {tab === "recruiting" && (
         <Recruiting career={career} onChanged={refresh} onError={setError} onGoDashboard={() => setTab("dashboard")} />
       )}
+      {tab === "facilities" && (
+        <Facilities career={career} onChanged={refresh} onError={setError} />
+      )}
+      {tab === "coaching" && <Coaching career={career} onChanged={refresh} onError={setError} />}
     </div>
   );
 }

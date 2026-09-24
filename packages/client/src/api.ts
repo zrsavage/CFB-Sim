@@ -1,4 +1,9 @@
 import type {
+  Coach,
+  CoachHireResult,
+  CoachRole,
+  FacilityKey,
+  FacilityUpgradeResult,
   Player,
   Recruit,
   SaveState,
@@ -49,4 +54,15 @@ export const api = {
       body: JSON.stringify({ recruitId }),
     }),
   advanceSigningDay: () => request<SigningDayResult>("/recruiting/advance", { method: "POST" }),
+  upgradeFacility: (facility: FacilityKey) =>
+    request<FacilityUpgradeResult>("/facilities/upgrade", {
+      method: "POST",
+      body: JSON.stringify({ facility }),
+    }),
+  getCoachingPool: () => request<{ pool: Coach[]; programPoints: number }>("/coaching/pool"),
+  hireCoach: (role: CoachRole, coachId: string) =>
+    request<CoachHireResult>("/coaching/hire", {
+      method: "POST",
+      body: JSON.stringify({ role, coachId }),
+    }),
 };

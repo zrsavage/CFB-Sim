@@ -1,5 +1,7 @@
 import type { Player, Position, Team } from "../../../shared/types.js";
 import { STARTER_COUNTS } from "../generators/players.js";
+import { coordinatorRatingBonus } from "./coaching.js";
+import { clamp } from "../util/random.js";
 
 function startersAvg(players: Player[], position: Position, count: number): number {
   const atPosition = players
@@ -39,8 +41,14 @@ function weightedRating(players: Player[], weights: Partial<Record<Position, num
 }
 
 export function computeTeamRatings(team: Team, roster: Player[]): Team {
-  const offenseRating = Math.round(weightedRating(roster, OFFENSE_WEIGHTS));
-  const defenseRating = Math.round(weightedRating(roster, DEFENSE_WEIGHTS));
+  const rosterOffense = weightedRating(roster, OFFENSE_WEIGHTS);
+  const rosterDefense = weightedRating(roster, DEFENSE_WEIGHTS);
+  const offenseRating = Math.round(
+    clamp(rosterOffense + coordinatorRatingBonus(team.staff.offensiveCoordinator.rating), 30, 99)
+  );
+  const defenseRating = Math.round(
+    clamp(rosterDefense + coordinatorRatingBonus(team.staff.defensiveCoordinator.rating), 30, 99)
+  );
   const overallRating = Math.round((offenseRating + defenseRating) / 2);
   return { ...team, offenseRating, defenseRating, overallRating };
 }

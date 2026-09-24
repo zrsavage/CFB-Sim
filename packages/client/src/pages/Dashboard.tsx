@@ -1,7 +1,23 @@
 import { useState } from "react";
-import type { SaveState, WeekSimResult } from "../../../shared/types";
+import type { CareerPhase, SaveState, WeekSimResult } from "../../../shared/types";
 import { api } from "../api";
 import { DIVISION_LABELS } from "../divisions";
+
+function simButtonLabel(phase: CareerPhase, week: number): string {
+  if (phase === "championship") return "Simulate Conference Championships";
+  if (phase === "bowls") return "Simulate Bowl Season";
+  return `Simulate Week ${week}`;
+}
+
+function roundHeading(result: WeekSimResult): string {
+  if (result.games.some((g) => g.label?.includes("Championship"))) {
+    return "Conference Championship Results";
+  }
+  if (result.games.some((g) => g.label)) {
+    return "Bowl Results";
+  }
+  return `Week ${result.week} Results`;
+}
 
 export default function Dashboard({
   career,
@@ -64,7 +80,8 @@ export default function Dashboard({
           <span className="rating-pill">{userTeam.overallRating}</span> · OFF{" "}
           <span className="rating-pill">{userTeam.offenseRating}</span> · DEF{" "}
           <span className="rating-pill">{userTeam.defenseRating}</span> · NFL Draft Picks{" "}
-          <span className="rating-pill">{userTeam.draftPicks}</span>
+          <span className="rating-pill">{userTeam.draftPicks}</span> · Program Points{" "}
+          <span className="rating-pill">{userTeam.programPoints}</span>
         </p>
         {userTeam.division === "power" && divisionRank > divisionTeams.length - 2 && (
           <p className="error-banner" style={{ display: "inline-block" }}>
@@ -79,21 +96,21 @@ export default function Dashboard({
           </p>
         )}
 
-        {career.career.phase === "season" ? (
+        {career.career.phase !== "recruiting" ? (
           <button className="primary" onClick={simulateWeek} disabled={simming}>
-            {simming ? "Simulating..." : `Simulate Week ${career.career.week}`}
+            {simming ? "Simulating..." : simButtonLabel(career.career.phase, career.career.week)}
           </button>
         ) : (
           <p>
-            Regular season complete. Head to the <strong>Recruiting</strong> tab to build next
-            year's roster before the new season kicks off.
+            Postseason complete. Head to the <strong>Recruiting</strong> tab to build next year's
+            roster before the new season kicks off.
           </p>
         )}
       </div>
 
       {userGameThisWeek && (
         <div className="panel">
-          <h2>Week {lastResult!.week} Result</h2>
+          <h2>{userGameThisWeek.label ?? `Week ${lastResult!.week} Result`}</h2>
           {(() => {
             const home = teamsById.get(userGameThisWeek.homeTeamId)!;
             const away = teamsById.get(userGameThisWeek.awayTeamId)!;
@@ -125,7 +142,7 @@ export default function Dashboard({
 
       {lastResult && (
         <div className="panel">
-          <h2>Week {lastResult.week} Around the League</h2>
+          <h2>{roundHeading(lastResult)}</h2>
           {lastResult.games.map((g) => {
             const home = teamsById.get(g.homeTeamId);
             const away = teamsById.get(g.awayTeamId);
@@ -133,6 +150,7 @@ export default function Dashboard({
             return (
               <div className="score-line" key={g.id}>
                 <span>
+                  {g.label ? `${g.label}: ` : ""}
                   {away.abbreviation} {g.awayScore} @ {home.abbreviation} {g.homeScore}
                 </span>
               </div>

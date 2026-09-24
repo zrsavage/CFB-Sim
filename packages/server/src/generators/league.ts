@@ -3,6 +3,8 @@ import type { Player, Team } from "../../../shared/types.js";
 import { CFB_TEAMS } from "../data/cfbTeams.js";
 import { clamp, randInt } from "../util/random.js";
 import { generateRoster } from "./players.js";
+import { generateInitialFacilities, STARTING_PROGRAM_POINTS } from "../engine/facilities.js";
+import { generateInitialStaff } from "./coaches.js";
 
 function abbreviate(name: string, used: Set<string>): string {
   const words = name.replace(/[^A-Za-z ]/g, "").split(" ").filter(Boolean);
@@ -42,6 +44,9 @@ export function generateLeague(): { teams: Team[]; players: Player[] } {
       offenseRating: 0,
       defenseRating: 0,
       overallRating: 0,
+      facilities: generateInitialFacilities(prestige),
+      programPoints: STARTING_PROGRAM_POINTS,
+      staff: generateInitialStaff(prestige),
     };
     teams.push(team);
     players.push(...generateRoster(team.id, prestige));

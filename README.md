@@ -49,13 +49,33 @@ overwrites it.
   play-by-play, just believable final scores.
 - **Schedule**: conference games (8-9, via a partial round robin) plus
   non-conference games (3-12 depending on division) generated and packed
-  into weeks with no team double-booked — a ~14-16 week season, same as
-  real FBS. Standings track wins/losses within conference and division.
-- **Promotion/relegation**: at the end of each season, the two worst-record
-  Power teams (nationally) swap places with the two best-record Group of
-  Five teams — same roster, new conference, a small prestige shift. A
-  Group of Five team really can climb into a Power conference (and a Power
-  team can fall out of one) over a multi-year career.
+  into weeks with no team double-booked — a ~12-15 week regular season, same
+  as real FBS. Standings track wins/losses within conference and division.
+- **Postseason**: after the regular season, each conference's top two teams
+  (by conference record) play a Conference Championship game, then the
+  teams with winning records get paired up by strength into a slate of
+  fictionally-named Bowl Games. Both count toward final record and award a
+  small prestige bump to the winner.
+- **Promotion/relegation**: after the postseason, the two worst-record Power
+  teams (nationally, full season including bowls) swap places with the two
+  best-record Group of Five teams — same roster, new conference, a small
+  prestige shift. A Group of Five team really can climb into a Power
+  conference (and a Power team can fall out of one) over a multi-year
+  career.
+- **Program Facilities**: spend Program Points (earned each season from
+  wins, your Stadium level, and NFL Draft picks produced) on four upgrade
+  tracks, each 1-5 levels — Stadium (more income), Training Facility
+  (faster player development), Academic Center (fewer transfers), and NIL
+  Collective (a stronger recruiting pitch). CPU programs start with
+  facility levels roughly matching their prestige, so blue bloods already
+  have an edge; the user's team is the only one that spends points.
+- **Coaching staff**: a Head Coach, Offensive Coordinator, and Defensive
+  Coordinator per team. Coordinator rating nudges the team's offense/defense
+  rating directly; the head coach adds to the recruiting pitch alongside the
+  NIL Collective. Browse a nationally-available hiring pool and spend
+  Program Points to hire into any of the three roles. Each offseason a
+  coordinator might get poached by a "bigger job" and is auto-backfilled by
+  an interim promotion.
 - **Offseason**: once the season ends, returning players develop based on
   their development trait and class year, seniors graduate, a few players
   transfer out, and a new recruiting class opens up.
@@ -88,15 +108,18 @@ packages/
   shared/    # types shared by server and client
   server/
     src/
-      data/        # name lists, the 133-team CFB-like dataset, attributes + backgrounds
-      generators/  # league, roster, schedule, recruit class generation
-      engine/      # ratings, game sim, progression, recruiting, promotion/relegation
+      data/        # name lists, the 133-team CFB-like dataset, attributes,
+                   # backgrounds, bowl names
+      generators/  # league, roster, schedule, recruit class, coach generation
+      engine/      # ratings, game sim, progression, recruiting,
+                   # promotion/relegation, draft, postseason, facilities, coaching
       routes/       # REST endpoints
       store.ts      # JSON save file persistence
       index.ts       # Express app entrypoint
   client/
     src/
-      pages/        # Dashboard, Roster, Standings, Schedule, Recruiting, TeamSelect
+      pages/        # Dashboard, Roster, Standings, Schedule, Recruiting,
+                     # TeamSelect, Facilities, Coaching
       components/   # PlayerDetailPanel (scouting report expand row)
       api.ts         # fetch wrapper for the server API
       App.tsx         # tab navigation + top-level state
@@ -105,7 +128,8 @@ packages/
 ## Ideas for what's next
 
 This is intentionally a base to build on. Natural next steps: position
-depth charts and starter assignments, coaching staff/hiring, bowl games or a
-conference championship, in-game play-by-play or drive summaries, injuries,
-transfer portal as a two-way market, scouting/visits in recruiting, save
-slots, historical stats and awards.
+depth charts and starter assignments, in-game play-by-play or drive
+summaries, injuries, transfer portal as a two-way market, scouting/visits
+in recruiting, save slots, historical stats and awards, a head coach
+hot-seat/firing mechanic, and multi-team playoff seeding instead of a flat
+bowl slate.

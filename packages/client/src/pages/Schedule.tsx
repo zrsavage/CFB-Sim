@@ -14,6 +14,7 @@ export default function Schedule({ career }: { career: SaveState }) {
         <thead>
           <tr>
             <th>Week</th>
+            <th>Event</th>
             <th>Opponent</th>
             <th>Result</th>
           </tr>
@@ -22,7 +23,7 @@ export default function Schedule({ career }: { career: SaveState }) {
           {games.map((g) => {
             const isHome = g.homeTeamId === userTeamId;
             const opponent = teamsById.get(isHome ? g.awayTeamId : g.homeTeamId);
-            const isCurrentWeek = g.week === career.career.week && career.career.phase === "season";
+            const isCurrentWeek = g.week === career.career.week && career.career.phase !== "recruiting";
             let result = "—";
             if (g.played && g.homeScore !== null && g.awayScore !== null) {
               const userScore = isHome ? g.homeScore : g.awayScore;
@@ -33,6 +34,7 @@ export default function Schedule({ career }: { career: SaveState }) {
             return (
               <tr key={g.id} className={isCurrentWeek ? "highlight" : ""}>
                 <td>{g.week}</td>
+                <td style={{ color: "var(--muted)" }}>{g.label ?? "—"}</td>
                 <td>
                   {isHome ? "vs" : "@"} {opponent?.name} {opponent?.mascot}
                 </td>

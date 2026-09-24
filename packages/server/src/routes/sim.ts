@@ -1,13 +1,24 @@
 import { Router } from "express";
-import type { CareerPhase, WeekSimResult } from "../../../shared/types.js";
+import type { CareerPhase, RecapEntry, WeekSimResult } from "../../../shared/types.js";
 import { simulateWeek, applyResultsToRecords } from "../engine/simulate.js";
 import { applyOffseasonProgression } from "../engine/progression.js";
 import { applyPromotionRelegation } from "../engine/promotion.js";
+import { applyCoachingCarousel } from "../engine/coaching.js";
+import { applySeasonIncome } from "../engine/facilities.js";
+import {
+  applyPostseasonPrestige,
+  generateBowlGames,
+  generateChampionshipGames,
+} from "../engine/postseason.js";
 import { recomputeAllRatings } from "../engine/ratings.js";
 import { generateRecruitClass } from "../generators/recruits.js";
+import { generateCoachingPool } from "../generators/coaches.js";
 import { loadSave, writeSave } from "../store.js";
 
 const router = Router();
+
+const CHAMPIONSHIP_PRESTIGE_BOOST = 2;
+const BOWL_PRESTIGE_BOOST = 1;
 
 router.post("/sim/week", (_req, res) => {
   const state = loadSave();
@@ -15,11 +26,12 @@ router.post("/sim/week", (_req, res) => {
     res.status(400).json({ error: "No active career" });
     return;
   }
-  if (state.career.phase !== "season") {
-    res.status(400).json({ error: "Not in season phase" });
+  if (state.career.phase === "recruiting") {
+    res.status(400).json({ error: "Not in season or postseason phase" });
     return;
   }
 
+  const currentPhase = state.career.phase;
   const weekGames = state.schedule.filter((g) => g.week === state.career.week);
   const teamsById = new Map(state.teams.map((t) => [t.id, t]));
   const simulated = simulateWeek(weekGames, teamsById);
@@ -30,14 +42,50 @@ router.post("/sim/week", (_req, res) => {
   });
   state.teams = applyResultsToRecords(state.teams, simulated);
 
-  const isLastWeek = state.career.week >= state.career.totalWeeks;
   let phaseAfter: CareerPhase = state.career.phase;
 
-  if (isLastWeek) {
+  if (currentPhase === "season" && state.career.week >= state.career.totalWeeks) {
+    // Regular season just wrapped — set up conference championship week.
+    const champGames = generateChampionshipGames(
+      state.teams,
+      state.schedule,
+      state.career.week + 1,
+      state.career.season
+    );
+    state.schedule.push(...champGames);
+    state.career.week += 1;
+    state.career.phase = "championship";
+    phaseAfter = "championship";
+  } else if (currentPhase === "championship") {
+    const { teams: withPrestige, recap: champRecap } = applyPostseasonPrestige(
+      simulated,
+      state.teams,
+      state.career.userTeamId,
+      CHAMPIONSHIP_PRESTIGE_BOOST
+    );
+    state.teams = withPrestige;
+    state.lastOffseasonRecap = champRecap;
+
+    const bowlGames = generateBowlGames(state.teams, state.career.week + 1, state.career.season);
+    state.schedule.push(...bowlGames);
+    state.career.week += 1;
+    state.career.phase = "bowls";
+    phaseAfter = "bowls";
+  } else if (currentPhase === "bowls") {
+    const { teams: withPrestige, recap: bowlRecap } = applyPostseasonPrestige(
+      simulated,
+      state.teams,
+      state.career.userTeamId,
+      BOWL_PRESTIGE_BOOST
+    );
+    state.teams = withPrestige;
+
     const { teams: realignedTeams, recap: promotionRecap } = applyPromotionRelegation(
       state.teams
     );
     state.teams = realignedTeams;
+
+    const draftPicksBefore = new Map(state.teams.map((t) => [t.id, t.draftPicks]));
 
     const {
       players,
@@ -45,9 +93,29 @@ router.post("/sim/week", (_req, res) => {
       recap: progressionRecap,
     } = applyOffseasonProgression(state.players, state.teams, state.career.userTeamId);
     state.players = players;
-    state.teams = recomputeAllRatings(progressedTeams, state.players);
+
+    const draftPicksThisSeason = new Map(
+      progressedTeams.map((t) => [t.id, t.draftPicks - (draftPicksBefore.get(t.id) ?? 0)])
+    );
+    const funded = applySeasonIncome(progressedTeams, draftPicksThisSeason);
+
+    const { teams: staffedTeams, recap: coachingRecap } = applyCoachingCarousel(
+      funded,
+      state.career.userTeamId
+    );
+
+    state.teams = recomputeAllRatings(staffedTeams, state.players);
     state.recruits = generateRecruitClass();
-    state.lastOffseasonRecap = [...promotionRecap, ...progressionRecap];
+    state.coachingPool = generateCoachingPool();
+
+    const allRecap: RecapEntry[] = [
+      ...state.lastOffseasonRecap,
+      ...bowlRecap,
+      ...promotionRecap,
+      ...progressionRecap,
+      ...coachingRecap,
+    ];
+    state.lastOffseasonRecap = allRecap;
     state.career.phase = "recruiting";
     phaseAfter = "recruiting";
   } else {

@@ -2,9 +2,16 @@ import { v4 as uuid } from "uuid";
 import type { Player, RecapEntry, Recruit, Team } from "../../../shared/types.js";
 import { clamp, gaussian, randInt } from "../util/random.js";
 import { ROSTER_COMPOSITION, headroomForTrait, rollDevTrait } from "../generators/players.js";
+import { headCoachPitchBonus } from "./coaching.js";
 
 const ROSTER_CAP = Object.values(ROSTER_COMPOSITION).reduce((a, b) => a + b, 0);
-const USER_PITCH_BONUS = 14;
+
+// A strong NIL Collective and a respected head coach both help sell a
+// program to recruits — applies to every team, so investing in facilities
+// and coaching is a real recruiting edge, not just a user-only bonus.
+function pitchBonus(team: Team): number {
+  return 6 + team.facilities.nil * 3 + headCoachPitchBonus(team.staff.headCoach.rating);
+}
 
 // A signed recruit becomes the actual player on the roster — same name,
 // hometown, high school, personality, and scouting attributes the user saw
@@ -69,8 +76,7 @@ export function resolveSigningDay(
     let bestTeam: Team | null = null;
     let bestScore = -Infinity;
     for (const team of candidates) {
-      let score = team.prestige * 0.7 + gaussian(0, 15);
-      if (team.id === userTeamId) score += USER_PITCH_BONUS;
+      const score = team.prestige * 0.7 + pitchBonus(team) + gaussian(0, 15);
       if (score > bestScore) {
         bestScore = score;
         bestTeam = team;

@@ -3,6 +3,7 @@ import type { SaveState } from "../../../shared/types.js";
 import { generateLeague } from "../generators/league.js";
 import { generateSchedule, scheduleTotalWeeks } from "../generators/schedule.js";
 import { recomputeAllRatings } from "../engine/ratings.js";
+import { generateCoachingPool } from "../generators/coaches.js";
 import { loadSave, writeSave } from "../store.js";
 
 const router = Router();
@@ -27,6 +28,7 @@ router.post("/career/generate", (_req, res) => {
     players,
     schedule: [],
     recruits: [],
+    coachingPool: generateCoachingPool(),
     lastOffseasonRecap: [],
   };
 

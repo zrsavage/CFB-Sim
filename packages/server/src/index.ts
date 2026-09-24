@@ -4,6 +4,8 @@ import careerRoutes from "./routes/career.js";
 import leagueRoutes from "./routes/league.js";
 import simRoutes from "./routes/sim.js";
 import recruitingRoutes from "./routes/recruiting.js";
+import facilitiesRoutes from "./routes/facilities.js";
+import coachingRoutes from "./routes/coaching.js";
 
 const app = express();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 4000;
@@ -15,6 +17,8 @@ app.use("/api", careerRoutes);
 app.use("/api", leagueRoutes);
 app.use("/api", simRoutes);
 app.use("/api", recruitingRoutes);
+app.use("/api", facilitiesRoutes);
+app.use("/api", coachingRoutes);
 
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true });

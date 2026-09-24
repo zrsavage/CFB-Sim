@@ -42,6 +42,32 @@ export interface Player {
 
 export type Division = "power" | "group5" | "independent";
 
+export type FacilityKey = "stadium" | "training" | "academics" | "nil";
+
+export interface Facilities {
+  stadium: number; // 1-5, drives season Program Points income
+  training: number; // 1-5, drives player development speed
+  academics: number; // 1-5, reduces transfer attrition
+  nil: number; // 1-5, drives recruiting pitch strength
+}
+
+export type CoachRole = "headCoach" | "offensiveCoordinator" | "defensiveCoordinator";
+
+export interface Coach {
+  id: string;
+  firstName: string;
+  lastName: string;
+  rating: number; // 35-99
+  trait: string;
+  yearsAtSchool: number;
+}
+
+export interface CoachingStaff {
+  headCoach: Coach;
+  offensiveCoordinator: Coach;
+  defensiveCoordinator: Coach;
+}
+
 export interface Team {
   id: string;
   name: string;
@@ -56,6 +82,9 @@ export interface Team {
   offenseRating: number;
   defenseRating: number;
   overallRating: number;
+  facilities: Facilities;
+  programPoints: number;
+  staff: CoachingStaff;
 }
 
 export interface ScheduleGame {
@@ -67,6 +96,7 @@ export interface ScheduleGame {
   played: boolean;
   homeScore: number | null;
   awayScore: number | null;
+  label?: string; // e.g. "Magnolia Conference Championship" or a bowl name
 }
 
 export type RecruitStars = 1 | 2 | 3 | 4 | 5;
@@ -87,14 +117,14 @@ export interface Recruit {
   attributes: PlayerAttribute[];
 }
 
-export type CareerPhase = "season" | "recruiting";
+export type CareerPhase = "season" | "championship" | "bowls" | "recruiting";
 
 export interface CareerState {
   started: boolean;
   userTeamId: string;
   season: number; // e.g. Year 1, Year 2 ...
   week: number;
-  totalWeeks: number;
+  totalWeeks: number; // length of the regular season only
   phase: CareerPhase;
   maxOffers: number;
 }
@@ -109,6 +139,7 @@ export interface SaveState {
   players: Player[];
   schedule: ScheduleGame[];
   recruits: Recruit[];
+  coachingPool: Coach[];
   lastOffseasonRecap: RecapEntry[];
 }
 
@@ -122,4 +153,13 @@ export interface SigningDayResult {
   signings: { recruitId: string; teamId: string }[];
   recap: RecapEntry[];
   nextSeason: number;
+}
+
+export interface FacilityUpgradeResult {
+  team: Team;
+}
+
+export interface CoachHireResult {
+  team: Team;
+  coachingPool: Coach[];
 }
